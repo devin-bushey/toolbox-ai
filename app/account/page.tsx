@@ -8,12 +8,11 @@ import { FormMessage, Message } from "@/components/form-message";
 import Link from "next/link";
 import { SubmitButton } from "@/components/submit-button";
 
-export default async function AccountPage({ 
-  searchParams 
-}: { 
-  searchParams: { message?: string; error?: string; success?: string } 
+export default async function AccountPage(props: { 
+  searchParams: Promise<{ message?: string; error?: string; success?: string }>
 }) {
   const supabase = await createClient();
+  const searchParams = await props.searchParams;
 
   const {
     data: { user },
