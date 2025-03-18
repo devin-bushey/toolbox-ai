@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -103,6 +103,7 @@ export default function MeetingForm({ userId }: { userId: string }) {
       },
       additional_comments: "",
     },
+    mode: "onSubmit",
   });
 
   async function onSubmit(data: FormValues) {
@@ -137,10 +138,69 @@ export default function MeetingForm({ userId }: { userId: string }) {
     }
   }
 
+  // This function handles validation errors and tab navigation
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const result = await form.trigger();
+    
+    if (!result) {
+      // Get all fields with errors
+      const errors = form.formState.errors;
+      
+      // Determine which tab has the first error
+      let tabWithError = "job-details";
+      
+      // Job details fields
+      const jobDetailsFields = ["job_title", "job_description", "company", "site_address", "supervisor_name", "supervisor_phone", "emergency_site_number"];
+      // Conditions fields
+      const conditionsFields = ["date", "time", "weather_conditions", "temperature"];
+      // Check job details fields
+      for (const field of jobDetailsFields) {
+        if (errors[field as keyof typeof errors]) {
+          tabWithError = "job-details";
+          break;
+        }
+      }
+      
+      // If no errors in job details, check conditions
+      if (tabWithError === "job-details" && !jobDetailsFields.some(field => errors[field as keyof typeof errors])) {
+        for (const field of conditionsFields) {
+          if (errors[field as keyof typeof errors]) {
+            tabWithError = "conditions";
+            break;
+          }
+        }
+      }
+      
+      // If no errors in job details or conditions, must be in hazards (or we would have validated)
+      if (tabWithError === "job-details" && !jobDetailsFields.some(field => errors[field as keyof typeof errors]) && 
+          !conditionsFields.some(field => errors[field as keyof typeof errors])) {
+        tabWithError = "hazards";
+      }
+      
+      // Switch to the tab with errors
+      setActiveTab(tabWithError);
+      
+      // Focus on the first error field after a short delay to allow tab switch to complete
+      setTimeout(() => {
+        const firstErrorField = document.querySelector<HTMLElement>('[aria-invalid="true"]');
+        if (firstErrorField) {
+          firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          firstErrorField.focus();
+        }
+      }, 100);
+      
+      return;
+    }
+    
+    // If validation passes, submit the form
+    form.handleSubmit(onSubmit)(e);
+  };
+
   return (
     <div className="w-full max-w-4xl mx-auto">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form onSubmit={handleFormSubmit} className="space-y-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid grid-cols-3 mb-8">
               <TabsTrigger value="job-details">Job Details</TabsTrigger>
