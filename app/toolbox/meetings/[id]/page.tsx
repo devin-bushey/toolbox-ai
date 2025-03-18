@@ -6,12 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, Calendar, MapPin, Phone, User, Thermometer, Download, Printer } from "lucide-react";
 
-export default async function MeetingDetailPage({
-  params,
-}: {
-  params: { id: string };
+export default async function MeetingDetailPage(props: {
+  params: Promise<{ id: string }>;
 }) {
   const supabase = await createClient();
+  const params = await props.params;
 
   const {
     data: { user },
