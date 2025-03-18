@@ -14,7 +14,6 @@ export default async function AccountPage({
   searchParams: { message?: string; error?: string; success?: string } 
 }) {
   const supabase = await createClient();
-  const awaitedSearchParams = await searchParams;
 
   const {
     data: { user },
@@ -25,17 +24,17 @@ export default async function AccountPage({
   }
 
   // Check if we have any message to display
-  const hasMessage = Object.keys(awaitedSearchParams).some(key => 
+  const hasMessage = Object.keys(searchParams).some(key => 
     ['message', 'error', 'success'].includes(key)
   );
 
   // Convert searchParams to the Message type expected by FormMessage
-  const message: Message = awaitedSearchParams.error 
-    ? { error: awaitedSearchParams.error }
-    : awaitedSearchParams.success
-    ? { success: awaitedSearchParams.success }
-    : awaitedSearchParams.message
-    ? { message: awaitedSearchParams.message }
+  const message: Message = searchParams.error 
+    ? { error: searchParams.error }
+    : searchParams.success
+    ? { success: searchParams.success }
+    : searchParams.message
+    ? { message: searchParams.message }
     : {} as Message;
 
   return (
