@@ -83,8 +83,43 @@ The application uses two primary tables in Supabase:
 ### Prerequisites
 
 - Node.js 18+ and npm
-- Supabase account
+- Docker Desktop
+- Supabase CLI
 - OpenAI API key
+- Cursor IDE (recommended)
+
+### Setting up Supabase Locally
+
+1. Install/upgrade Supabase CLI:
+```bash
+brew upgrade supabase
+```
+
+2. Initialize Supabase in your project:
+```bash
+supabase init
+```
+
+3. Start Supabase locally:
+```bash
+supabase start
+```
+
+After running `supabase start`, you'll see output containing your local credentials. Look for these lines:
+```
+API URL: http://localhost:54321
+anon key: 'your-anon-key-will-be-here'
+service_role key: 'your-service-role-key-will-be-here'
+```
+
+4. Create a `.env.local` file with these credentials:
+```bash
+NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-local-anon-key
+```
+
+The Supabase Dashboard will be available at: http://localhost:54323
+
 
 ### Installation
 
@@ -101,7 +136,8 @@ npm install
 
 3. Set up environment variables:
 - Copy the `.env.example` file to `.env.local`
-- Update the Supabase and OpenAI API credentials
+- Update the OpenAI API credentials
+- Use the Supabase local development credentials from the setup above
 
 ```bash
 cp .env.example .env.local
@@ -109,12 +145,13 @@ cp .env.example .env.local
 
 Required environment variables:
 ```
-NEXT_PUBLIC_SUPABASE_URL=your-project-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-local-anon-key
 OPENAI_API_KEY=your-openai-api-key
 ```
 
 4. Update your Supabase database schema:
+- Access the local Supabase Studio at http://localhost:54323
 - Create a `toolbox_meetings` table with the schema defined in `types/supabase.ts`
 - Create a `profiles` table for user profile information
 - Set up appropriate RLS (Row Level Security) policies for data access
