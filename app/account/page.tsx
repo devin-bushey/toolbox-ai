@@ -1,18 +1,31 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { FormMessage, Message } from "@/components/form-message";
 import Link from "next/link";
-import { SubmitButton } from "@/components/submit-button";
+import { Button } from "@/components/ui/button";
+import { FormMessage, Message } from "@/components/form-message";
+import { ProfileSection } from "./_components/profile-section";
+import { PasswordSection } from "./_components/password-section";
 
-export default async function AccountPage(props: { 
-  searchParams: Promise<{ message?: string; error?: string; success?: string }>
-}) {
+interface SearchParams {
+  message?: string;
+  error?: string;
+  success?: string;
+}
+
+interface AccountPageProps {
+  searchParams: Promise<SearchParams>;
+}
+
+function createMessageFromSearchParams(params: SearchParams): Message {
+  if (params.error) return { error: params.error };
+  if (params.success) return { success: params.success };
+  if (params.message) return { message: params.message };
+  return {} as Message;
+}
+
+export default async function AccountPage({ searchParams }: AccountPageProps) {
   const supabase = await createClient();
-  const searchParams = await props.searchParams;
+  const params = await searchParams;
 
   const {
     data: { user },
@@ -22,65 +35,18 @@ export default async function AccountPage(props: {
     return redirect("/sign-in");
   }
 
-  // Check if we have any message to display
-  const hasMessage = Object.keys(searchParams).some(key => 
+  const message = createMessageFromSearchParams(params);
+  const hasMessage = Object.keys(params).some(key => 
     ['message', 'error', 'success'].includes(key)
   );
-
-  // Convert searchParams to the Message type expected by FormMessage
-  const message: Message = searchParams.error 
-    ? { error: searchParams.error }
-    : searchParams.success
-    ? { success: searchParams.success }
-    : searchParams.message
-    ? { message: searchParams.message }
-    : {} as Message;
 
   return (
     <div className="container max-w-4xl py-12">
       <h1 className="text-3xl font-bold mb-8">Account Settings</h1>
       
       <div className="grid gap-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Profile Information</CardTitle>
-            <CardDescription>View and manage your account details</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4">
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" value={user.email} disabled />
-                <p className="text-sm text-muted-foreground mt-1">
-                  Your email address is used for sign in and notifications
-                </p>
-              </div>
-              <div>
-                <Label htmlFor="created-at">Account Created</Label>
-                <Input 
-                  id="created-at" 
-                  value={new Date(user.created_at).toLocaleDateString()} 
-                  disabled 
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Change Password</CardTitle>
-            <CardDescription>Update your password to keep your account secure</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form className="grid gap-4" action="/protected/reset-password">
-              <Button type="submit">Reset Password</Button>
-              <p className="text-sm text-muted-foreground">
-                You'll be sent a password reset email to confirm this change
-              </p>
-            </form>
-          </CardContent>
-        </Card>
+        <ProfileSection email={user.email ?? ''} createdAt={user.created_at} />
+        <PasswordSection />
         
         {hasMessage && <FormMessage message={message} />}
         
