@@ -59,7 +59,7 @@ export default async function HeaderAuth() {
           ) : (
             <div className="flex items-center gap-2">
               <Link href="/sign-in">
-                <Button variant="ghost" size="sm">Sign in</Button>
+                <Button variant="secondary" size="sm">Sign in</Button>
               </Link>
               <Link href="/sign-up">
                 <Button size="sm">Get Started</Button>

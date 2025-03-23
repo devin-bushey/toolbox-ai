@@ -35,7 +35,7 @@ export default async function HomePage() {
               </Button>
             </Link>
             <Link href="/sign-in">
-              <Button size="lg" variant="outline" className="border-background text-background hover:bg-primary-foreground/10">
+              <Button size="lg" variant="secondary">
                 Sign In
               </Button>
             </Link>
