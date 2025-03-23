@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
-import { generateSafetySummary } from "@/lib/tools/openai";
+import { generateSafetySummary } from "@/lib/tools/generate-safety-summary";
 import { searchSafetyStandards } from "@/lib/tools/search-safety-standards";
 
 export async function POST(request: NextRequest) {

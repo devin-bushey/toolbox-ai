@@ -48,7 +48,9 @@ export async function searchSafetyStandards(
 
             Your task:
 
-            - Based on the users query, find the most relevant safety documents.
+            - Based on the users query, find the most relevant safety documents in Alberta, Canada.
+            - Do not include any documents that are not related to Alberta, Canada.
+            - Please search in this domain: https://ohs-pubstore.labour.alberta.ca/construction
             - Click into the documents (if needed) and extract the most relevant paragraph that addresses the query.
             - Return a response in strict JSON format only — no extra text, no markdown, no commentary.
 
@@ -68,7 +70,6 @@ export async function searchSafetyStandards(
         perplexity: {
           return_images: false,
           search_domain_filter: ['https://ohs-pubstore.labour.alberta.ca/construction'],
-          response_format: 'json',
           web_search_options: {
             search_context_size: 'low',
           }

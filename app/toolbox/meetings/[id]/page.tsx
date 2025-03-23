@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, Calendar, MapPin, Phone, User, Thermometer, Download, Printer, ExternalLink } from "lucide-react";
+import SafetySummaryEditor from "@/components/toolbox/safety-summary-editor";
 
 export default async function MeetingDetailPage(props: {
   params: Promise<{ id: string }>;
@@ -197,9 +198,10 @@ export default async function MeetingDetailPage(props: {
             <CardDescription>Generated safety briefing based on job details and hazards</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="prose prose-sm max-w-none">
-              <div className="whitespace-pre-wrap">{meeting.ai_safety_summary}</div>
-            </div>
+            <SafetySummaryEditor
+              meetingId={params.id}
+              initialContent={meeting.ai_safety_summary || ''}
+            />
           </CardContent>
         </Card>
         
