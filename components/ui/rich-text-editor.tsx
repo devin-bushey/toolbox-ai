@@ -133,8 +133,11 @@ export function RichTextEditor({
           className
         )}
       >
-        <div className="prose prose-sm max-w-none p-4">
-          <div dangerouslySetInnerHTML={{ __html: content }} />
+        <div className="p-4 text-foreground leading-relaxed">
+          <div 
+            dangerouslySetInnerHTML={{ __html: content }} 
+            className="prose prose-headings:font-bold prose-headings:text-foreground prose-p:text-foreground prose-p:my-2 prose-li:text-foreground max-w-none"
+          />
         </div>
       </div>
     )
@@ -150,9 +153,12 @@ export function RichTextEditor({
       {editable && <MenuBar editor={editor} />}
       <EditorContent
         editor={editor}
-        className={cn('prose prose-sm max-w-none p-4', {
-          'cursor-not-allowed opacity-60': !editable,
-        })}
+        className={cn(
+          'prose prose-headings:font-bold prose-headings:text-foreground prose-p:text-foreground prose-p:my-2 prose-li:text-foreground max-w-none p-4 text-base leading-relaxed', 
+          {
+            'cursor-not-allowed opacity-60': !editable,
+          }
+        )}
       />
     </div>
   )

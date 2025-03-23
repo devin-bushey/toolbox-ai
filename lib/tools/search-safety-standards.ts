@@ -71,7 +71,7 @@ export async function searchSafetyStandards(
           return_images: false,
           search_domain_filter: ['https://ohs-pubstore.labour.alberta.ca/construction'],
           web_search_options: {
-            search_context_size: 'low',
+            search_context_size: 'medium',
           }
         },
       },

@@ -35,27 +35,48 @@ export async function generateSafetySummary(
       messages: [
         {
           role: "system",
-          content: "You are a safety expert in the construction industry. Create a concise, well-formatted safety briefing based on the provided job details, hazards, and safety standards.\n\nYour response should use basic HTML formatting to ensure good readability. The content will be displayed directly in a rich text editor, so proper formatting is essential.\n\nFORMAT YOUR RESPONSE LIKE THIS:\n<h2>Safety Briefing: [Job Title]</h2>\n<h3>Job Overview</h3>\n<p>[Brief description of the job]</p>\n\n<h3>Hazards and Controls</h3>\n<ul>\n  <li><strong>[Hazard 1]</strong>: [Safety measure]</li>\n  <li><strong>[Hazard 2]</strong>: [Safety measure]</li>\n</ul>\n\n<h3>Safety Standards</h3>\n<p>[Mention of relevant regulations]</p>\n\n<h3>Key Reminders</h3>\n<ul>\n  <li>[Important reminder 1]</li>\n  <li>[Important reminder 2]</li>\n</ul>\n\nDO NOT include any markdown formatting, code block indicators or language specifiers in your response."
+          content: `
+            You are a senior safety expert with hands-on experience in civil construction projects in Alberta, Canada. 
+
+            Your task is to generate a clear and concise safety briefing based on the provided job context. The briefing will be used in a toolbox meeting.
+
+            Focus on:
+            - Outlining the key hazards and risks associated with the job.
+            - Providing practical safety measures and protocols to mitigate those risks.
+            - Ensuring the briefing is relevant to all site personnel, including construction workers, foremen, supervisors, and safety officers.
+
+            Formatting requirements:
+            - The response will be displayed in a tiptap/react ProseMirror text editor with HTML support.
+            - Use basic HTML tags (e.g. <h2>, <ul>, <li>, <p>) to organize content for readability.
+            - Maintain clear structure and spacing.
+            - Include only the following sections:
+              - <h2>Safety Measures</h2>
+              - <h2>Final Remarks</h2>
+
+          `
         },
         {
           role: "user",
-          content: `Generate a safety briefing for a toolbox meeting with the following details:
+          content: `Generate a safety briefing for a toolbox meeting using the following details as context:
           
-Job Title: ${formData.job_title}
-Job Description: ${formData.job_description}
-Weather: ${formData.weather_conditions}, ${formData.temperature}°C
-Road Conditions: ${formData.road_conditions}
-Site Address: ${formData.site_address}
+            Job Title: ${formData.job_title}
+            Job Description: ${formData.job_description}
+            Weather: ${formData.weather_conditions}, ${formData.temperature}°C
+            Road Conditions: ${formData.road_conditions}
+            Site Address: ${formData.site_address}
 
-Identified Hazards: ${Object.entries(formData.hazards)
-  .filter(([_, value]) => value === true)
-  .map(([key]) => key.replace(/_/g, ' '))
-  .join(', ')}
+            Identified Hazards: ${Object.entries(formData.hazards)
+              .filter(([_, value]) => value === true)
+              .map(([key]) => key.replace(/_/g, ' '))
+              .join(', ')}
 
-Additional Comments: ${formData.additional_comments || 'None'}
+            Additional Comments: ${formData.additional_comments || 'None'}
 
-Relevant Safety Standards:
-${safetyStandards.result}`
+            Relevant Safety Standards:
+            ${safetyStandards.result}
+
+            Please follow the system instructions and adhere to the formatting and structure guidelines.
+            `
         }
       ],
       max_tokens: 1000,
