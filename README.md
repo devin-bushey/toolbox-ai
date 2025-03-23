@@ -8,14 +8,15 @@
 
 Toolbox AI is a Next.js application that helps construction teams create toolbox meeting plans and safety assessments using AI. The application integrates with Supabase for authentication and data storage, and uses AI to generate detailed safety briefings based on job details and identified hazards.
 
+<p align="center">
+  <img src="https://media.giphy.com/media/9DUDLDnPZlkoDwVtOd/giphy.gif?cid=790b7611irdmbhhthkxdxgy25ynnkwanpc8nv4rs6ja5ii00&ep=v1_gifs_search&rid=giphy.gif&ct=g" alt="Toolbox AI Demo" width="600"/>
+</p>
+
 ## 📋 Features
 
 - **User Authentication**: Secure login and registration using Supabase Auth
-- **Toolbox Meeting Creation**: Easy-to-use form for creating detailed job safety assessments
-- **AI-Powered Safety Briefings**: Automatic generation of professional safety briefings based on job details
-- **Meeting History**: View and manage all past toolbox meetings
-- **Responsive Design**: Works on desktop and mobile devices
-- **Construction-Specific Hazard Management**: Built-in support for common construction hazards
+- **Toolbox Meeting Creation**: [Toolbox README](./src/app/toolbox/README.md). Easy-to-use form for creating detailed job safety assessments
+- **RFP Helper**: Search and Respond to Request for Proposals (TODO)
 
 ## 🔧 Tech Stack
 
