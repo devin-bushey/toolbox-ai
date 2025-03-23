@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzeJobHazards } from '../../_tools/analyze-job-hazards';
 
+// Increase timeout to 60 seconds
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   try {
     const { job_description, weather_conditions, temperature, road_conditions } = await request.json();

@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/database/utils/supabase/server";
 import { generateSafetySummary } from "@/app/toolbox/_tools/generate-safety-summary";
-import { searchSafetyStandards } from "@/app/toolbox/_tools/search-safety-standards";
+import { searchSafetyStandards, SafetySearchResult } from "@/app/toolbox/_tools/search-safety-standards";
+
+// Increase timeout to 60 seconds
+export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,11 +41,40 @@ export async function POST(request: NextRequest) {
         .join(', ')
     }`;
 
-    // Fetch safety standards using Perplexity
-    const safetyStandards = await searchSafetyStandards(safetyQuery);
+    // Create a fallback safety result
+    const fallbackSafetyResult: SafetySearchResult = {
+      result: "Unable to fetch safety standards. Please review safety requirements manually.",
+      sources: [],
+      metadata: { timestamp: new Date().toISOString() }
+    };
+
+    // Fetch safety standards using Perplexity - run this with a timeout
+    const safetyStandardsPromise = searchSafetyStandards(safetyQuery)
+      .catch(error => {
+        console.error("Error fetching safety standards:", error);
+        return fallbackSafetyResult;
+      });
+      
+    // Set a timeout for the safety standards call
+    const timeoutPromise = new Promise<SafetySearchResult>(resolve => {
+      setTimeout(() => {
+        resolve({
+          result: "Safety standards search timed out. Please review safety requirements manually.",
+          sources: [],
+          metadata: { timestamp: new Date().toISOString() }
+        });
+      }, 20000); // 20 second timeout
+    });
+    
+    // Use Promise.race to handle potential timeouts
+    const safetyStandards = await Promise.race([safetyStandardsPromise, timeoutPromise]);
     
     // Generate AI safety summary using OpenAI with the fetched safety standards
-    const aiSafetySummary = await generateSafetySummary(formData, safetyStandards);
+    const aiSafetySummary = await generateSafetySummary(formData, safetyStandards)
+      .catch(error => {
+        console.error("Error generating safety summary:", error);
+        return "Error generating safety summary. Please create a safety plan manually.";
+      });
 
     // Combine form data with safety summary and standards
     const meetingData = {

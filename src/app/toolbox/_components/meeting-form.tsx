@@ -179,6 +179,9 @@ export default function MeetingForm({ userId }: { userId: string }) {
         user_id: userId,
       };
 
+      // Show a loading toast that will be dismissed on success or replaced with an error
+      const loadingToast = toast.loading("Generating safety plan...");
+
       const response = await fetch("/toolbox/api/meetings", {
         method: "POST",
         headers: {
@@ -188,15 +191,24 @@ export default function MeetingForm({ userId }: { userId: string }) {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create toolbox meeting");
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error occurred' }));
+        throw new Error(errorData.error || "Failed to create toolbox meeting");
       }
+
+      // Dismiss the loading toast
+      toast.dismiss(loadingToast);
+      
+      // Show success toast
+      toast.success("Safety plan generated successfully!");
 
       const result = await response.json();
       router.push(`/toolbox/meetings/${result.id}`);
       router.refresh();
     } catch (error) {
       console.error("Error submitting form:", error);
-      // Handle error state here
+      
+      // Show error toast with the specific error message
+      toast.error(`Failed to generate safety plan: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsSubmitting(false);
     }
