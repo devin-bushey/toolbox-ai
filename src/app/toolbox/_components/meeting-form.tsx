@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarIcon, Loader2, RefreshCw } from "lucide-react";
+import { CalendarIcon, Loader2, RefreshCw, Zap } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,6 +30,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/utils/class-names";
 import { format } from "date-fns";
+import { HazardAnalysisResult } from "../_tools/analyze-job-hazards";
 
 // Weather API types
 interface WeatherData {
@@ -58,6 +59,38 @@ async function fetchWeatherByAddress(address: string): Promise<WeatherData> {
   } catch (error) {
     console.error('Error fetching weather:', error);
     throw error;
+  }
+}
+
+// Function to analyze hazards using AI
+async function analyzeHazards(
+  jobDescription: string, 
+  weatherConditions: string, 
+  temperature: number, 
+  roadConditions?: string
+): Promise<HazardAnalysisResult | null> {
+  try {
+    const response = await fetch('/toolbox/api/analyze-hazards', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        job_description: jobDescription,
+        weather_conditions: weatherConditions,
+        temperature,
+        road_conditions: roadConditions,
+      }),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to analyze hazards');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error analyzing hazards:', error);
+    return null;
   }
 }
 
@@ -99,6 +132,7 @@ export default function MeetingForm({ userId }: { userId: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("job-details");
   const [isLoadingWeather, setIsLoadingWeather] = useState(false);
+  const [isAnalyzingHazards, setIsAnalyzingHazards] = useState(false);
   const [weatherCache, setWeatherCache] = useState<WeatherCache | null>(null);
 
   const form = useForm<FormValues>({
@@ -145,7 +179,7 @@ export default function MeetingForm({ userId }: { userId: string }) {
         user_id: userId,
       };
 
-      const response = await fetch("/api/toolbox/meetings", {
+      const response = await fetch("/toolbox/api/meetings", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -320,6 +354,86 @@ export default function MeetingForm({ userId }: { userId: string }) {
       console.error("Error fetching weather:", error);
     } finally {
       setIsLoadingWeather(false);
+    }
+  };
+
+  // Function to analyze hazards and update form values
+  const analyzeAndUpdateHazards = async () => {
+    const jobDescription = form.getValues("job_description");
+    const weatherConditions = form.getValues("weather_conditions");
+    const temperature = form.getValues("temperature");
+    const roadConditions = form.getValues("road_conditions");
+    
+    if (!jobDescription || jobDescription.length < 5) {
+      toast.error("Please enter a valid job description first");
+      return false;
+    }
+    
+    setIsAnalyzingHazards(true);
+    
+    try {
+      const analysis = await analyzeHazards(
+        jobDescription,
+        weatherConditions,
+        temperature,
+        roadConditions
+      );
+      
+      if (!analysis) {
+        throw new Error("Failed to analyze hazards");
+      }
+      
+      // Update form with hazard analysis
+      if (analysis.hazards) {
+        Object.entries(analysis.hazards).forEach(([key, value]) => {
+          form.setValue(`hazards.${key}` as any, value);
+        });
+      }
+      
+      if (analysis.additional_comments) {
+        form.setValue("additional_comments", analysis.additional_comments);
+      }
+      
+      toast.success("Hazards analyzed and updated");
+      return true;
+    } catch (error) {
+      toast.error("Failed to analyze hazards. Please check manually.");
+      return false;
+    } finally {
+      setIsAnalyzingHazards(false);
+    }
+  };
+
+  // Handle next button click from Conditions tab to Hazards tab
+  const handleNextFromConditions = async () => {
+    // Validate conditions fields first
+    const conditionsFields = ["date", "time", "weather_conditions", "temperature"];
+    const isValid = await form.trigger(conditionsFields as any);
+    
+    if (!isValid) {
+      // Focus on the first error field
+      setTimeout(() => {
+        const firstErrorField = document.querySelector<HTMLElement>('[aria-invalid="true"]');
+        if (firstErrorField) {
+          firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          firstErrorField.focus();
+        }
+      }, 100);
+      return;
+    }
+    
+    // If form valid, analyze hazards
+    try {
+      setIsAnalyzingHazards(true);
+      
+      // Attempt to analyze hazards with AI
+      await analyzeAndUpdateHazards();
+      
+      // Move to next tab regardless of analysis success
+      setActiveTab("hazards");
+    } catch (error) {
+      console.error("Error analyzing hazards:", error);
+      setActiveTab("hazards");
     }
   };
 
@@ -602,17 +716,42 @@ export default function MeetingForm({ userId }: { userId: string }) {
                 </Button>
                 <Button 
                   type="button" 
-                  onClick={() => setActiveTab("hazards")}
+                  onClick={handleNextFromConditions}
+                  disabled={isAnalyzingHazards}
                 >
-                  Next
+                  {isAnalyzingHazards ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Analyzing Hazards...
+                    </>
+                  ) : (
+                    "Next"
+                  )}
                 </Button>
               </div>
             </TabsContent>
             
             <TabsContent value="hazards" className="space-y-6">
               <Card>
-                <CardHeader>
+                <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle>Hazards Assessment</CardTitle>
+                  <Button 
+                    type="button" 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={analyzeAndUpdateHazards}
+                    disabled={isAnalyzingHazards}
+                    className="h-8"
+                  >
+                    {isAnalyzingHazards ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Zap className="h-3.5 w-3.5 mr-1.5" />
+                        AI Update
+                      </>
+                    )}
+                  </Button>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
