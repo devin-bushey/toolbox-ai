@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -8,10 +8,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { CalendarIcon, Loader2, RefreshCw } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 import {
   Form,
   FormControl,
@@ -30,6 +31,36 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/utils/class-names";
 import { format } from "date-fns";
 
+// Weather API types
+interface WeatherData {
+  weather_conditions: string;
+  temperature: number;
+  road_conditions?: string;
+}
+
+// Cache for weather data to avoid unnecessary API calls
+interface WeatherCache {
+  address: string;
+  data: WeatherData;
+  timestamp: number;
+}
+
+// Function to fetch weather data by address
+async function fetchWeatherByAddress(address: string): Promise<WeatherData> {
+  try {
+    const response = await fetch(`/toolbox/api/weather?address=${encodeURIComponent(address)}`);
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch weather data');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching weather:', error);
+    throw error;
+  }
+}
+
 const formSchema = z.object({
   job_title: z.string().min(2, "Job title is required"),
   job_description: z.string().min(5, "Job description is required"),
@@ -41,7 +72,6 @@ const formSchema = z.object({
   weather_conditions: z.string().min(2, "Weather conditions are required"),
   temperature: z.coerce.number(),
   road_conditions: z.string().optional(),
-  lease_conditions: z.string().optional(),
   date: z.date(),
   time: z.string(),
   hazards: z.object({
@@ -68,6 +98,8 @@ export default function MeetingForm({ userId }: { userId: string }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("job-details");
+  const [isLoadingWeather, setIsLoadingWeather] = useState(false);
+  const [weatherCache, setWeatherCache] = useState<WeatherCache | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -75,14 +107,13 @@ export default function MeetingForm({ userId }: { userId: string }) {
       job_title: "Pipeline Installation Project",
       job_description: "Installation of 24-inch diameter pipeline including excavation, welding, and backfilling operations. Project involves heavy equipment operation and confined space entry.",
       company: "MoCo Construction Ltd.",
-      site_address: "456 Industrial Park Road, Calgary, AB T2P 1N4",
+      site_address: "555 Saddledome Rise SE, Calgary, AB T2G 2W1",
       supervisor_name: "Sqcuff Mo",
       supervisor_phone: "403-555-0123",
-      emergency_site_number: "403-555-9911",
+      emergency_site_number: "911",
       weather_conditions: "Partly Cloudy",
       temperature: 22,
       road_conditions: "Dry, well-maintained",
-      lease_conditions: "Good - recently graded",
       date: new Date(),
       time: format(new Date(), "HH:mm"),
       hazards: {
@@ -194,6 +225,102 @@ export default function MeetingForm({ userId }: { userId: string }) {
     
     // If validation passes, submit the form
     form.handleSubmit(onSubmit)(e);
+  };
+
+  // Function to fetch and update weather data
+  const fetchWeatherData = async (forceRefresh = false) => {
+    const siteAddress = form.getValues("site_address");
+    
+    if (!siteAddress || siteAddress.length < 5) {
+      toast.error("Please enter a valid site address first");
+      return false;
+    }
+    
+    // Check cache first if not forcing a refresh
+    if (!forceRefresh && weatherCache && weatherCache.address === siteAddress) {
+      // Use cached data if it's less than 30 minutes old
+      const cacheAge = Date.now() - weatherCache.timestamp;
+      const cacheValidMinutes = 30; // Cache valid for 30 minutes
+      
+      if (cacheAge < cacheValidMinutes * 60 * 1000) {
+        // Update form with cached weather data
+        form.setValue("weather_conditions", weatherCache.data.weather_conditions);
+        form.setValue("temperature", weatherCache.data.temperature);
+        
+        if (weatherCache.data.road_conditions) {
+          form.setValue("road_conditions", weatherCache.data.road_conditions);
+        }
+        
+        toast.success("Weather data loaded from cache");
+        return true;
+      }
+    }
+    
+    setIsLoadingWeather(true);
+    
+    try {
+      const weatherData = await fetchWeatherByAddress(siteAddress);
+      
+      // Update form with weather data
+      form.setValue("weather_conditions", weatherData.weather_conditions);
+      form.setValue("temperature", weatherData.temperature);
+      
+      if (weatherData.road_conditions) {
+        form.setValue("road_conditions", weatherData.road_conditions);
+      }
+      
+      // Cache the weather data
+      setWeatherCache({
+        address: siteAddress,
+        data: weatherData,
+        timestamp: Date.now()
+      });
+      
+      toast.success("Weather data updated successfully");
+      return true;
+    } catch (error) {
+      toast.error("Failed to fetch weather data. Please enter manually.");
+      return false;
+    } finally {
+      setIsLoadingWeather(false);
+    }
+  };
+
+  // Function to refresh weather data
+  const refreshWeatherData = () => fetchWeatherData(true);
+
+  // Handle next button click on Job Details tab
+  const handleNextFromJobDetails = async () => {
+    // Validate job details fields first
+    const jobDetailsFields = ["job_title", "job_description", "company", "site_address", "supervisor_name", "supervisor_phone", "emergency_site_number"];
+    const isValid = await form.trigger(jobDetailsFields as any);
+    
+    if (!isValid) {
+      // Focus on the first error field
+      setTimeout(() => {
+        const firstErrorField = document.querySelector<HTMLElement>('[aria-invalid="true"]');
+        if (firstErrorField) {
+          firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          firstErrorField.focus();
+        }
+      }, 100);
+      return;
+    }
+    
+    // If form valid, fetch weather data
+    try {
+      setIsLoadingWeather(true);
+      
+      // Attempt to fetch weather
+      await fetchWeatherData();
+      
+      // Move to next tab regardless of weather fetch success
+      setActiveTab("conditions");
+    } catch (error) {
+      console.error("Error fetching weather:", error);
+    } finally {
+      setIsLoadingWeather(false);
+    }
   };
 
   return (
@@ -322,17 +449,42 @@ export default function MeetingForm({ userId }: { userId: string }) {
               <div className="flex justify-end">
                 <Button 
                   type="button" 
-                  onClick={() => setActiveTab("conditions")}
+                  onClick={handleNextFromJobDetails}
+                  disabled={isLoadingWeather}
                 >
-                  Next
+                  {isLoadingWeather ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Fetching Weather...
+                    </>
+                  ) : (
+                    "Next"
+                  )}
                 </Button>
               </div>
             </TabsContent>
             
             <TabsContent value="conditions" className="space-y-6">
               <Card>
-                <CardHeader>
+                <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle>Site Conditions</CardTitle>
+                  <Button 
+                    type="button" 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={refreshWeatherData}
+                    disabled={isLoadingWeather}
+                    className="h-8"
+                  >
+                    {isLoadingWeather ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <>
+                        <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                        Update Weather
+                      </>
+                    )}
+                  </Button>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -431,19 +583,6 @@ export default function MeetingForm({ userId }: { userId: string }) {
                           <FormLabel>Road Conditions</FormLabel>
                           <FormControl>
                             <Input placeholder="Dry, Wet, Icy, etc." {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="lease_conditions"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Lease Conditions</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Good, Poor, etc." {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

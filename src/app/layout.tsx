@@ -3,6 +3,7 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
+import { Toaster } from "sonner";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -33,6 +34,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <Toaster />
           <div className="relative flex min-h-screen flex-col">
             <HeaderAuth />
             <main className="flex-1 flex flex-col">
