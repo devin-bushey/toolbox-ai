@@ -72,9 +72,98 @@ const config = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+      typography: (theme: any) => ({
+        DEFAULT: {
+          css: {
+            color: 'hsl(var(--foreground))',
+            '[class~="lead"]': {
+              color: 'hsl(var(--foreground))',
+            },
+            a: {
+              color: 'hsl(var(--primary))',
+              '&:hover': {
+                color: 'hsl(var(--primary) / 0.8)',
+              },
+              textDecoration: 'none',
+            },
+            'strong, b': {
+              color: 'hsl(var(--foreground))',
+              fontWeight: '600',
+            },
+            'h1, h2, h3, h4, h5, h6': {
+              color: 'hsl(var(--foreground))',
+              fontWeight: '600',
+            },
+            'code, pre': {
+              backgroundColor: 'hsl(var(--muted) / 0.5)',
+              borderRadius: theme('borderRadius.md'),
+              padding: theme('spacing.1'),
+            },
+            pre: {
+              backgroundColor: 'hsl(var(--muted) / 0.5)',
+              borderRadius: theme('borderRadius.md'),
+              color: 'hsl(var(--foreground))',
+              fontSize: '0.9em',
+              padding: theme('spacing.4'),
+              overflowX: 'auto',
+            },
+            blockquote: {
+              borderLeftColor: 'hsl(var(--muted))',
+              borderLeftWidth: '2px',
+              paddingLeft: '1em',
+              fontStyle: 'italic',
+            },
+            hr: {
+              borderColor: 'hsl(var(--border))',
+            },
+            ol: {
+              listStyleType: 'decimal',
+            },
+            ul: {
+              listStyleType: 'disc',
+            },
+          },
+        },
+        sm: {
+          css: {
+            fontSize: '0.9rem',
+            lineHeight: '1.5',
+            'h1, h2, h3, h4': {
+              marginTop: '1.25em',
+              marginBottom: '0.75em',
+            },
+            p: {
+              marginTop: '0.75em',
+              marginBottom: '0.75em',
+            },
+          },
+        },
+        // Add dark mode support
+        invert: {
+          css: {
+            color: 'hsl(var(--foreground))',
+            'h1, h2, h3, h4, h5, h6': {
+              color: 'hsl(var(--foreground))',
+            },
+            a: {
+              color: 'hsl(var(--primary))',
+            },
+            'strong, b': {
+              color: 'hsl(var(--foreground))',
+            },
+            code: {
+              color: 'hsl(var(--foreground))',
+            },
+            pre: {
+              backgroundColor: 'hsl(var(--muted) / 0.4)',
+              color: 'hsl(var(--foreground))',
+            },
+          },
+        },
+      }),
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
 } satisfies Config;
 
 export default config;

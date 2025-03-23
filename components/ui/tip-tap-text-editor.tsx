@@ -3,16 +3,30 @@
 import { useEditor, EditorContent, type Editor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
+import Placeholder from '@tiptap/extension-placeholder'
 import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
-import { Bold, Italic, Link as LinkIcon, List, Heading2, Undo, Redo } from 'lucide-react'
+import { 
+  Bold, 
+  Italic, 
+  Link as LinkIcon, 
+  List, 
+  ListOrdered, 
+  Heading2, 
+  Undo, 
+  Redo,
+  Quote,
+  Code,
+  Pilcrow
+} from 'lucide-react'
 import { Button } from './button'
 
-export interface RichTextEditorProps {
+export interface TipTapEditorProps {
   content: string
   onChange?: (content: string) => void
   className?: string
   editable?: boolean
+  placeholder?: string
 }
 
 const MenuBar = ({ editor }: { editor: Editor | null }) => {
@@ -59,6 +73,42 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
       <Button
         variant="ghost"
         size="sm"
+        onClick={() => editor.chain().focus().toggleOrderedList().run()}
+        className={cn('h-8 w-8 p-0', { 'bg-muted': editor.isActive('orderedList') })}
+        aria-label="Ordered List"
+      >
+        <ListOrdered className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => editor.chain().focus().toggleBlockquote().run()}
+        className={cn('h-8 w-8 p-0', { 'bg-muted': editor.isActive('blockquote') })}
+        aria-label="Quote"
+      >
+        <Quote className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+        className={cn('h-8 w-8 p-0', { 'bg-muted': editor.isActive('codeBlock') })}
+        aria-label="Code Block"
+      >
+        <Code className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => editor.chain().focus().setParagraph().run()}
+        className={cn('h-8 w-8 p-0', { 'bg-muted': editor.isActive('paragraph') })}
+        aria-label="Paragraph"
+      >
+        <Pilcrow className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={() => {
           const url = window.prompt('URL')
           if (url) {
@@ -95,12 +145,13 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
   )
 }
 
-export function RichTextEditor({
+export function TipTapEditor({
   content,
   onChange,
   className,
   editable = true,
-}: RichTextEditorProps) {
+  placeholder = 'Write something...',
+}: TipTapEditorProps) {
   const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
@@ -109,12 +160,30 @@ export function RichTextEditor({
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        heading: {
+          levels: [1, 2, 3],
+        },
+        codeBlock: {
+          HTMLAttributes: {
+            class: 'rounded-md bg-muted/50 p-2 font-mono',
+          },
+        },
+        blockquote: {
+          HTMLAttributes: {
+            class: 'border-l-4 border-muted pl-4 italic',
+          },
+        },
+      }),
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
           class: 'text-primary underline',
         },
+      }),
+      Placeholder.configure({
+        placeholder,
+        emptyEditorClass: 'is-editor-empty',
       }),
     ],
     content,
@@ -133,10 +202,10 @@ export function RichTextEditor({
           className
         )}
       >
-        <div className="p-4 text-foreground leading-relaxed">
+        <div className="p-4">
           <div 
             dangerouslySetInnerHTML={{ __html: content }} 
-            className="prose prose-headings:font-bold prose-headings:text-foreground prose-p:text-foreground prose-p:my-2 prose-li:text-foreground max-w-none"
+            className="prose prose-sm dark:prose-invert prose-neutral max-w-none"
           />
         </div>
       </div>
@@ -154,9 +223,15 @@ export function RichTextEditor({
       <EditorContent
         editor={editor}
         className={cn(
-          'prose prose-headings:font-bold prose-headings:text-foreground prose-p:text-foreground prose-p:my-2 prose-li:text-foreground max-w-none p-4 text-base leading-relaxed', 
+          'prose-sm dark:prose-invert prose-neutral max-w-none p-4', 
+          'prose-headings:font-semibold prose-h1:text-xl prose-h2:text-lg',
+          'prose-p:my-2 prose-a:text-primary prose-a:no-underline hover:prose-a:underline',
+          'prose-strong:font-bold prose-pre:rounded-md prose-pre:bg-muted/50 prose-pre:p-2',
+          'prose-ul:pl-5 prose-ol:pl-5 prose-li:my-0.5',
           {
             'cursor-not-allowed opacity-60': !editable,
+            'min-h-[200px]': editable,
+            'tiptap-editor': true,
           }
         )}
       />

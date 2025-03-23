@@ -67,3 +67,88 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* TipTap Editor Custom Styles */
+.tiptap-editor {
+  /* Focus styles */
+  &:focus {
+    @apply outline-none ring-2 ring-primary/20 ring-offset-2 ring-offset-background;
+  }
+  
+  /* Custom styling for the editor content */
+  & .ProseMirror {
+    @apply min-h-[200px] outline-none;
+  }
+
+  /* Placeholder for empty editor */
+  & .ProseMirror p.is-editor-empty:first-child::before {
+    @apply text-muted-foreground;
+    content: "Write something...";
+    float: left;
+    pointer-events: none;
+    height: 0;
+  }
+
+  /* Highlight selected text */
+  & .ProseMirror-selectednode {
+    @apply outline outline-2 outline-primary/30 outline-offset-2;
+  }
+  
+  /* Code blocks */
+  & .ProseMirror pre {
+    @apply font-mono text-sm bg-muted/50 p-3 rounded-md my-3 overflow-x-auto;
+  }
+  
+  /* Blockquote */
+  & .ProseMirror blockquote {
+    @apply border-l-4 border-muted pl-4 italic;
+  }
+  
+  /* Lists */
+  & .ProseMirror ul {
+    @apply list-disc pl-5;
+  }
+  
+  & .ProseMirror ol {
+    @apply list-decimal pl-5;
+  }
+}
+
+/* Typography customization for the editor and content */
+@layer utilities {
+  .prose :where(h1, h2, h3, h4) {
+    @apply scroll-m-20 tracking-tight;
+  }
+  
+  .prose :where(h1) {
+    @apply text-2xl font-bold my-4;
+  }
+  
+  .prose :where(h2) {
+    @apply text-xl font-semibold my-3;
+  }
+  
+  .prose :where(h3) {
+    @apply text-lg font-medium my-2;
+  }
+  
+  .prose :where(p) {
+    @apply leading-7 my-2;
+  }
+  
+  .prose :where(ul, ol) {
+    @apply my-2;
+  }
+  
+  .prose :where(li) {
+    @apply my-0.5;
+  }
+  
+  .prose :where(blockquote) {
+    @apply border-l-2 pl-4 italic;
+  }
+  
+  .prose :where(code) {
+    @apply rounded bg-muted px-1 py-0.5 font-mono text-sm;
+  }
+}

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { RichTextEditor } from '@/components/ui/rich-text-editor'
+import { TipTapEditor } from '@/components/ui/tip-tap-text-editor'
 import { createClient } from '@/utils/supabase/client'
 import { toast } from '@/components/ui/use-toast'
 
@@ -50,7 +50,7 @@ export default function SafetySummaryEditor({ meetingId, initialContent }: Safet
 
   return (
     <div className="space-y-2">
-      <RichTextEditor
+      <TipTapEditor
         content={content}
         onChange={setContent}
         editable={true}
