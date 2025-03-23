@@ -1,11 +1,12 @@
 # Toolbox AI - Construction Safety Planning Solution
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
-![Next.js](https://img.shields.io/badge/Next.js-14-black)
+![Next.js](https://img.shields.io/badge/Next.js-15-black)
+![React](https://img.shields.io/badge/React-19-blue)
 ![Supabase](https://img.shields.io/badge/Supabase-latest-green)
 ![License](https://img.shields.io/badge/license-MIT-yellow)
 
-Toolbox AI is a Next.js application that helps construction teams create toolbox meeting plans and safety assessments using AI. The application integrates with Supabase for authentication and data storage, and uses OpenAI's GPT-4 model to generate detailed safety briefings based on job details and identified hazards.
+Toolbox AI is a Next.js application that helps construction teams create toolbox meeting plans and safety assessments using AI. The application integrates with Supabase for authentication and data storage, and uses AI to generate detailed safety briefings based on job details and identified hazards.
 
 ## 📋 Features
 
@@ -18,75 +19,39 @@ Toolbox AI is a Next.js application that helps construction teams create toolbox
 
 ## 🔧 Tech Stack
 
-- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS
-- **Backend**: Next.js API Routes, Supabase Edge Functions
+- **Frontend**: Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS 3
+- **Backend**: Supabase 
 - **Database**: PostgreSQL (via Supabase)
-- **AI**: OpenAI GPT-4
-- **Authentication**: Supabase Auth
-- **UI Components**: Radix UI, shadcn/ui
+- **UI Components**: shadcn/ui, Radix UI primitives
+- **Editor**: TipTap rich text editor
+- **AI**: OpenAI, Perplexity AI
+- **Forms**: React Hook Form with Zod validation
 
-## 📁 Project Structure
+## 📁 Example Project Structure
 
 ```
 toolbox-ai/
-├── app/                  # Next.js App Router
-│   ├── api/              # API routes
-│   ├── auth/             # Authentication pages  
-│   ├── dashboard/        # Dashboard pages
-│   └── meetings/         # Meeting management pages
-├── components/           # Reusable UI components
-├── lib/                  # Utility libraries
-│   ├── supabase/         # Supabase client and helpers
-│   └── openai/           # OpenAI integration
-├── types/                # TypeScript type definitions
-│   └── supabase.ts       # Database schema types
-└── utils/                # Helper functions
+├── src/                   # Main source code directory
+│   ├── app/               # Next.js App Router pages
+│   ├── components/        # Reusable UI components
+│   └── utils/             # Utility functions
+├── database/              # Database configuration
+│   ├── utils/supabase/    # Supabase client and helpers
+│   └── types/             # Database schema types
+├── middleware.ts          # Auth middleware for protected routes
+└── .env.local             # Environment variables
 ```
 
-## 🗄️ Database Schema
 
-The application uses two primary tables in Supabase:
-
-### `toolbox_meetings` Table
-- `id`: UUID (primary key)
-- `created_at`: Timestamp
-- `updated_at`: Timestamp
-- `user_id`: Foreign key to user table
-- `job_title`: String
-- `job_description`: String
-- `company`: String
-- `site_address`: String
-- `supervisor_name`: String
-- `supervisor_phone`: String
-- `emergency_site_number`: String
-- `weather_conditions`: String
-- `temperature`: Number
-- `road_conditions`: String
-- `lease_conditions`: String
-- `date`: String (ISO format)
-- `time`: String
-- `hazards`: JSON object (containing boolean flags for various hazards)
-- `additional_comments`: String
-- `ai_safety_summary`: String (AI-generated content)
-
-### `profiles` Table
-- `id`: UUID (primary key)
-- `created_at`: Timestamp
-- `updated_at`: Timestamp
-- `email`: String
-- `name`: String
-- `company`: String
-- `role`: String
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
 - Node.js 18+ and npm
-- Docker Desktop
+- Docker Desktop (for local Supabase)
 - Supabase CLI
 - OpenAI API key
-- Cursor IDE (recommended)
 
 ### Setting up Supabase Locally
 
@@ -95,31 +60,19 @@ The application uses two primary tables in Supabase:
 brew upgrade supabase
 ```
 
-2. Initialize Supabase in your project:
-```bash
-supabase init
-```
-
-3. Start Supabase locally:
+2. Start Supabase locally:
 ```bash
 supabase start
 ```
 
-After running `supabase start`, you'll see output containing your local credentials. Look for these lines:
-```
-API URL: http://localhost:54321
-anon key: 'your-anon-key-will-be-here'
-service_role key: 'your-service-role-key-will-be-here'
-```
+After running `supabase start`, you'll see output containing your local credentials.
 
-4. Create a `.env.local` file with these credentials:
+3. Create a `.env.local` file with these credentials:
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-local-anon-key
+OPENAI_API_KEY=your-openai-api-key
 ```
-
-The Supabase Dashboard will be available at: http://localhost:54323
-
 
 ### Installation
 
@@ -134,52 +87,23 @@ cd toolbox-ai
 npm install
 ```
 
-3. Set up environment variables:
-- Copy the `.env.example` file to `.env.local`
-- Update the OpenAI API credentials
-- Use the Supabase local development credentials from the setup above
-
-```bash
-cp .env.example .env.local
-```
-
-Required environment variables:
-```
-NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-local-anon-key
-OPENAI_API_KEY=your-openai-api-key
-```
-
-4. Update your Supabase database schema:
-- Access the local Supabase Studio at http://localhost:54323
-- Create a `toolbox_meetings` table with the schema defined in `types/supabase.ts`
-- Create a `profiles` table for user profile information
-- Set up appropriate RLS (Row Level Security) policies for data access
-
-5. Start the development server:
+3. Start the development server:
 ```bash
 npm run dev
 ```
 
-6. Open [http://localhost:3000](http://localhost:3000) in your browser.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 📦 Deployment
 
 The application can be deployed to Vercel or other platforms that support Next.js applications.
 
-1. Build the application:
 ```bash
 npm run build
-```
-
-2. Deploy to Vercel:
-```bash
 npx vercel
 ```
 
 ## 🧪 Testing
-
-Run the test suite with:
 
 ```bash
 npm test
@@ -189,12 +113,6 @@ npm test
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
 ## 📄 License
 
 [MIT](LICENSE)
@@ -203,6 +121,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 - [Next.js](https://nextjs.org/)
 - [Supabase](https://supabase.io/)
-- [OpenAI](https://openai.com/)
-- [Tailwind CSS](https://tailwindcss.com/)
 - [shadcn/ui](https://ui.shadcn.com/)
+- [TipTap](https://tiptap.dev/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [OpenAI](https://openai.com/)
