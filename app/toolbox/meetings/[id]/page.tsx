@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, Calendar, MapPin, Phone, User, Thermometer, Download, Printer } from "lucide-react";
+import { ChevronLeft, Calendar, MapPin, Phone, User, Thermometer, Download, Printer, ExternalLink } from "lucide-react";
 
 export default async function MeetingDetailPage(props: {
   params: Promise<{ id: string }>;
@@ -37,6 +37,24 @@ export default async function MeetingDetailPage(props: {
   const activeHazards = Object.entries(meeting.hazards)
     .filter(([_, value]) => value === true)
     .map(([key]) => key.replace(/_/g, ' '));
+
+  // Parse safety standards JSON if it exists
+  let parsedStandards = [];
+  try {
+    if (meeting.safety_standards) {
+      // Remove markdown formatting if present (```json and ```)
+      let jsonString = meeting.safety_standards;
+      if (jsonString.startsWith('```')) {
+        // Extract the JSON part from the markdown code block
+        jsonString = jsonString.replace(/^```json\s*/, '').replace(/```\s*$/, '').trim();
+      }
+      parsedStandards = JSON.parse(jsonString);
+    }
+  } catch (e) {
+    console.error("Error parsing safety standards:", e);
+    // Fallback to displaying raw text if parsing fails
+    parsedStandards = [];
+  }
 
   return (
     <div className="flex-1 w-full flex flex-col gap-8 p-4 md:p-8">
@@ -184,6 +202,61 @@ export default async function MeetingDetailPage(props: {
             </div>
           </CardContent>
         </Card>
+        
+        {meeting.safety_standards && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Safety Standards</CardTitle>
+              <CardDescription>Relevant safety regulations and guidelines for this job</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {parsedStandards.length > 0 ? (
+                  parsedStandards.map((standard: any, index: number) => (
+                    <div key={index} className="border rounded-lg p-4">
+                      <h3 className="font-medium text-base mb-1">{standard.title}</h3>
+                      <p className="text-sm text-muted-foreground mb-2">{standard.summary}</p>
+                      <div className="mb-3 text-sm">
+                        <p>{standard.paragraph}</p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="prose prose-sm max-w-none">
+                    <p className="text-muted-foreground mb-2">Unable to parse the safety standards data. Showing raw content:</p>
+                    <pre className="text-xs bg-gray-50 p-4 rounded-md overflow-x-auto whitespace-pre-wrap">
+                      {meeting.safety_standards}
+                    </pre>
+                  </div>
+                )}
+              </div>
+              
+              {meeting.safety_standards_sources && meeting.safety_standards_sources.length > 0 && (
+                <div className="mt-6">
+                  <h3 className="font-medium mb-2">Sources</h3>
+                  <ul className="space-y-1">
+                    {meeting.safety_standards_sources.map((source: any, index: number) => (
+                      <li key={index}>
+                        {source.url ? (
+                          <Link 
+                            href={source.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs inline-flex items-center text-blue-600 hover:text-blue-800"
+                          >
+                            {source.url || `Source ${index + 1}`} <ExternalLink className="ml-1 h-3 w-3" />
+                          </Link>
+                        ) : (
+                          <span className="text-xs">{source.id || `Source ${index + 1}`}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

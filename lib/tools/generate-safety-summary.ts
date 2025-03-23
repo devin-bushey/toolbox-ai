@@ -1,5 +1,5 @@
 import { OpenAI } from 'openai';
-import { searchSafetyStandards } from './tools/safety-search';
+import { SafetySearchResult } from './search-safety-standards';
 
 // Check if OpenAI API key is set
 if (!process.env.OPENAI_API_KEY) {
@@ -13,21 +13,14 @@ const openai = new OpenAI({
 
 export default openai;
 
-// Function to generate a safety summary based on form data
-export async function generateSafetySummary(formData: any): Promise<string> {
+// Function to generate a safety summary based on form data and safety standards
+export async function generateSafetySummary(
+  formData: any, 
+  safetyStandards: SafetySearchResult
+): Promise<string> {
   try {
-    // First, get relevant safety standards based on the job details
-    const safetyQuery = `${formData.job_title} ${formData.job_description} ${
-      Object.entries(formData.hazards)
-        .filter(([_, value]) => value === true)
-        .map(([key]) => key.replace(/_/g, ' '))
-        .join(', ')
-    }`;
-
-    const safetyStandards = await searchSafetyStandards(safetyQuery);
-    
     const response = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",

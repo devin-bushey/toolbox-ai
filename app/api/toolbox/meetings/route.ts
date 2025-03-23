@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
-import { generateSafetySummary } from "@/lib/openai";
+import { generateSafetySummary } from "@/lib/tools/openai";
+import { searchSafetyStandards } from "@/lib/tools/search-safety-standards";
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,13 +30,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate AI safety summary
-    const aiSafetySummary = await generateSafetySummary(formData);
+    // First, get relevant safety standards based on the job details
+    const safetyQuery = `${formData.job_title} ${formData.job_description} ${
+      Object.entries(formData.hazards)
+        .filter(([_, value]) => value === true)
+        .map(([key]) => key.replace(/_/g, ' '))
+        .join(', ')
+    }`;
 
-    // Combine form data with safety summary
+    // Fetch safety standards using Perplexity
+    const safetyStandards = await searchSafetyStandards(safetyQuery);
+    
+    // Generate AI safety summary using OpenAI with the fetched safety standards
+    const aiSafetySummary = await generateSafetySummary(formData, safetyStandards);
+
+    // Combine form data with safety summary and standards
     const meetingData = {
       ...formData,
       ai_safety_summary: aiSafetySummary,
+      safety_standards: safetyStandards.result,
+      safety_standards_sources: safetyStandards.sources,
+      safety_standards_metadata: safetyStandards.metadata,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };

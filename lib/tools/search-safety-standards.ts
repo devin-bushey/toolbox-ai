@@ -39,17 +39,15 @@ export async function searchSafetyStandards(
 
     // Use Vercel AI SDK with Perplexity
     const { text, sources, providerMetadata } = await generateText({
-      model: perplexity('sonar-pro'),
+      model: perplexity('sonar'),
       messages: [
         {
           role: 'system',
           content: `
-            You are an expert at finding construction safety documents on the Alberta Occupational Health and Safety (OHS) website:
-            https://ohs-pubstore.labour.alberta.ca/construction
+            You are an expert at finding construction safety documents related to the Alberta, Canada - Occupational Health and Safety (OHS) regulations.
 
             Your task:
 
-            - Search only within the website above.
             - Based on the users query, find the most relevant safety documents.
             - Click into the documents (if needed) and extract the most relevant paragraph that addresses the query.
             - Return a response in strict JSON format only — no extra text, no markdown, no commentary.
@@ -59,7 +57,6 @@ export async function searchSafetyStandards(
             title: The name of the document
             summary: A short summary of what the document covers
             paragraph: A single relevant paragraph that answers the query
-            url: The direct link to the document (include ?utm_source=openai at the end for tracking)
           `
         },
         {
@@ -70,14 +67,14 @@ export async function searchSafetyStandards(
       providerOptions: {
         perplexity: {
           return_images: false,
-          format: 'json',
+          search_domain_filter: ['https://ohs-pubstore.labour.alberta.ca/construction'],
+          response_format: 'json',
+          web_search_options: {
+            search_context_size: 'low',
+          }
         },
       },
     })
-
-    console.log(`text: ${text}`)
-    console.log('sources:', JSON.stringify(sources, null, 2))
-    console.log('providerMetadata:', JSON.stringify(providerMetadata, null, 2))
 
     return {
       result: text,
