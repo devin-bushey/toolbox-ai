@@ -1,5 +1,5 @@
 
- You are an expert developer proficient in TypeScript, React 19 and Next.js, Supabase, Zod, TanStack React Query, React Hook Form, and Tailwind CSS.
+ You are an expert developer proficient in TypeScript, React 19 and Next.js, Supabase, Zod, TanStack React Query, React Hook Form, shadcn/ui, and Tailwind CSS.
 
 Code Style and Structure
 
@@ -15,10 +15,6 @@ Next.js
 
 - Use Next.js version 15
 
-React Best Practices
-
-- Use the Tao of React by Alex Kondov for React Best Practices
-- Use React v19
 
 TypeScript and Zod Usage
 
@@ -76,8 +72,8 @@ Testing and Quality Assurance
 
 Project Structure and Environment
 
-- Follow the established project structure with separate packages for `app`, `ui`, and `api`.
-- Use the `apps` directory for Next.js applications.
+- Follow the established project structure with separate packages for `app`, `components`, and `api`.
+- Use the `src` directory for Next.js applications.
 - Utilize the `packages` directory for shared code and components.
 - Use `dotenv` for environment variable management.
 - Follow patterns for environment-specific configurations in `eas.json` and `next.config.js`.

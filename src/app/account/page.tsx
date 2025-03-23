@@ -2,7 +2,7 @@ import { createClient } from "@/database/utils/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { FormMessage, Message } from "@/components/form-message";
+import { FormMessage, Message } from "@/components/ui/form-message";
 import { ProfileSection } from "./_components/profile-section";
 import { PasswordSection } from "./_components/password-section";
 

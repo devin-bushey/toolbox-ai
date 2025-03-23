@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/database/utils/supabase/server";
-import { generateSafetySummary } from "@//tools/generate-safety-summary";
-import { searchSafetyStandards } from "@//tools/search-safety-standards";
+import { generateSafetySummary } from "@/app/toolbox/_tools/generate-safety-summary";
+import { searchSafetyStandards } from "@/app/toolbox/_tools/search-safety-standards";
 
 export async function POST(request: NextRequest) {
   try {

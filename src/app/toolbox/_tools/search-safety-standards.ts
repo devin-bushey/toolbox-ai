@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { createPerplexity } from '@ai-sdk/perplexity'
 import { generateText } from 'ai'
-import { cleanMarkdownFormatting } from './utils'
+import { cleanMarkdownFormatting } from '../_utils/clean-markdown'
 
 const searchRequestSchema = z.object({
   query: z.string().min(1).max(500),

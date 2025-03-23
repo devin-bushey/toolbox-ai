@@ -5,7 +5,7 @@ import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
 import { useState, useEffect } from 'react'
-import { cn } from '@//tools/utils'
+import { cn } from '@/utils/class-names'
 import { 
   Bold, 
   Italic, 

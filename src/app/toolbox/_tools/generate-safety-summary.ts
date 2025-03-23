@@ -1,6 +1,6 @@
 import { OpenAI } from 'openai';
 import { SafetySearchResult } from './search-safety-standards';
-import { cleanMarkdownFormatting } from './utils';
+import { cleanMarkdownFormatting } from '../_utils/clean-markdown';
 
 // Check if OpenAI API key is set
 if (!process.env.OPENAI_API_KEY) {

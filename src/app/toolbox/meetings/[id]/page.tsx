@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, Calendar, MapPin, Phone, User, Thermometer, Download, Printer, ExternalLink } from "lucide-react";
-import SafetySummaryEditor from "@/components/toolbox/safety-summary-editor";
+import SafetySummaryEditor from "@/app/toolbox/_components/safety-summary-editor";
 
 export default async function MeetingDetailPage(props: {
   params: Promise<{ id: string }>;

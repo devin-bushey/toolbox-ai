@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { TipTapEditor } from '@/components/ui/tip-tap-text-editor'
 import { createClient } from '@/database/utils/supabase/client'
-import { toast } from '@/components/ui/toast/use-toast'
 
 interface SafetySummaryEditorProps {
   meetingId: string
@@ -29,18 +28,8 @@ export default function SafetySummaryEditor({ meetingId, initialContent }: Safet
         
         if (error) throw error
         
-        toast({
-          title: 'Changes saved',
-          description: 'Your edits have been saved automatically.',
-          variant: 'default',
-        })
       } catch (error) {
         console.error('Error saving safety summary:', error)
-        toast({
-          title: 'Error saving changes',
-          description: 'There was a problem updating the safety summary.',
-          variant: 'destructive',
-        })
       }
     }, 1500) // 1.5 second delay before saving
 

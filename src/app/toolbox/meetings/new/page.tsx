@@ -1,6 +1,6 @@
 import { createClient } from "@/database/utils/supabase/server";
 import { redirect } from "next/navigation";
-import MeetingForm from "@/components/toolbox/meeting-form";
+import MeetingForm from "@/app/toolbox/_components/meeting-form";
 
 export default async function NewMeetingPage() {
   const supabase = await createClient();

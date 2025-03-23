@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,7 +27,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@//tools/utils";
+import { cn } from "@/utils/class-names";
 import { format } from "date-fns";
 
 const formSchema = z.object({
@@ -75,9 +74,9 @@ export default function MeetingForm({ userId }: { userId: string }) {
     defaultValues: {
       job_title: "Pipeline Installation Project",
       job_description: "Installation of 24-inch diameter pipeline including excavation, welding, and backfilling operations. Project involves heavy equipment operation and confined space entry.",
-      company: "ABC Pipeline Construction Ltd.",
+      company: "MoCo Construction Ltd.",
       site_address: "456 Industrial Park Road, Calgary, AB T2P 1N4",
-      supervisor_name: "Michael Anderson",
+      supervisor_name: "Sqcuff Mo",
       supervisor_phone: "403-555-0123",
       emergency_site_number: "403-555-9911",
       weather_conditions: "Partly Cloudy",
