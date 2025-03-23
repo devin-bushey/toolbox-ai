@@ -230,9 +230,9 @@ export default async function MeetingDetailPage(props: {
               {meeting.safety_standards_sources && meeting.safety_standards_sources.length > 0 && (
                 <div className="mt-6">
                   <h3 className="font-medium mb-2">Sources</h3>
-                  <ul className="space-y-1">
+                  <ul className="space-y-2">
                     {meeting.safety_standards_sources.map((source: any, index: number) => (
-                      <li key={index}>
+                      <li key={index} className="break-words">
                         {source.url ? (
                           <Link 
                             href={source.url}
@@ -240,7 +240,17 @@ export default async function MeetingDetailPage(props: {
                             rel="noopener noreferrer"
                             className="text-xs inline-flex items-center text-blue-600 hover:text-blue-800"
                           >
-                            {source.url || `Source ${index + 1}`} <ExternalLink className="ml-1 h-3 w-3" />
+                            <span>
+                              {(() => {
+                                try {
+                                  const url = new URL(source.url);
+                                  return url.hostname;
+                                } catch (e) {
+                                  return source.url || `Source ${index + 1}`;
+                                }
+                              })()}
+                            </span>
+                            <ExternalLink className="ml-1 h-3 w-3 flex-shrink-0" />
                           </Link>
                         ) : (
                           <span className="text-xs">{source.id || `Source ${index + 1}`}</span>

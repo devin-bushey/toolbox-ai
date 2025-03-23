@@ -492,7 +492,7 @@ export default function MeetingForm({ userId }: { userId: string }) {
                         <FormControl>
                           <Textarea 
                             placeholder="Briefly describe the job and tasks to be performed"
-                            className="min-h-[100px]"
+                            className="min-h-[150px]"
                             {...field} 
                           />
                         </FormControl>
@@ -1038,7 +1038,7 @@ export default function MeetingForm({ userId }: { userId: string }) {
                         <FormControl>
                           <Textarea 
                             placeholder="Enter any additional safety concerns or specific hazards not covered above"
-                            className="min-h-[100px]"
+                            className="min-h-[150px]"
                             {...field} 
                           />
                         </FormControl>
