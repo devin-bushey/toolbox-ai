@@ -13,6 +13,12 @@ export const metadata = {
   metadataBase: new URL(defaultUrl),
   title: "Toolbox AI - Construction Safety Planning",
   description: "AI-powered toolbox meeting and safety assessment platform for construction professionals.",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
+    userScalable: true,
+  },
 };
 
 const geistSans = Geist({
@@ -26,8 +32,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={geistSans.className} suppressHydrationWarning>
-      <body className="bg-background text-foreground">
+    <html lang="en" className={`${geistSans.className} overflow-x-hidden`} suppressHydrationWarning>
+      <body className="bg-background text-foreground overflow-x-hidden">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
