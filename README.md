@@ -19,8 +19,7 @@ Toolbox AI is a Next.js application that helps construction teams create toolbox
 
 ## 🔧 Tech Stack
 
-- **Frontend**: Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS 3
-- **Backend**: Supabase 
+- **Frontend/Backend**: Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS 3
 - **Database**: PostgreSQL (via Supabase)
 - **UI Components**: shadcn/ui, Radix UI primitives
 - **Editor**: TipTap rich text editor
@@ -43,7 +42,6 @@ toolbox-ai/
 ```
 
 
-
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -51,28 +49,7 @@ toolbox-ai/
 - Node.js 18+ and npm
 - Docker Desktop (for local Supabase)
 - Supabase CLI
-- OpenAI API key
-
-### Setting up Supabase Locally
-
-1. Install/upgrade Supabase CLI:
-```bash
-brew upgrade supabase
-```
-
-2. Start Supabase locally:
-```bash
-supabase start
-```
-
-After running `supabase start`, you'll see output containing your local credentials.
-
-3. Create a `.env.local` file with these credentials:
-```bash
-NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-local-anon-key
-OPENAI_API_KEY=your-openai-api-key
-```
+- API keys - see .env.example
 
 ### Installation
 
@@ -87,12 +64,30 @@ cd toolbox-ai
 npm install
 ```
 
-3. Start the development server:
+3. Install/upgrade Supabase CLI:
+```bash
+brew upgrade supabase
+```
+
+4. Start Supabase locally:
+```bash
+supabase start
+```
+
+After running `supabase start`, you'll see output containing your local credentials.
+
+5. Create a `.env.local` file with these credentials:
+```bash
+cp .env.example .env.local
+```
+
+6. Start the development server:
 ```bash
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+7. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
 
 ## 📦 Deployment
 
@@ -117,11 +112,3 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 [MIT](LICENSE)
 
-## 🙏 Acknowledgements
-
-- [Next.js](https://nextjs.org/)
-- [Supabase](https://supabase.io/)
-- [shadcn/ui](https://ui.shadcn.com/)
-- [TipTap](https://tiptap.dev/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [OpenAI](https://openai.com/)
