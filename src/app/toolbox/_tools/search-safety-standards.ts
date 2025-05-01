@@ -72,7 +72,7 @@ export async function searchSafetyStandards(
       providerOptions: {
         perplexity: {
           return_images: false,
-          search_domain_filter: ['https://ohs-pubstore.labour.alberta.ca/construction'],
+          search_domain_filters: ['ohs-pubstore.labour.alberta.ca'],
           web_search_options: {
             search_context_size: 'medium',
           }
@@ -94,6 +94,17 @@ export async function searchSafetyStandards(
     if (error instanceof z.ZodError) {
       throw new Error(`Invalid search parameters: ${error.message}`)
     }
-    throw new Error(`Safety search error: ${error}`)
+    // Return a properly formatted error response
+    return {
+      result: JSON.stringify({
+        title: 'Error',
+        summary: 'Unable to fetch safety standards',
+        paragraph: `An error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`
+      }),
+      sources: [],
+      metadata: {
+        timestamp: new Date().toISOString(),
+      },
+    }
   }
 } 
